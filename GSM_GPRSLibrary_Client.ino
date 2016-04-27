@@ -12,9 +12,14 @@
 
 //Simple sketch to start a connection as client.
 
+// this looks crucial
+
 InetGSM inet;
+
 //CallGSM call;
 //SMSGSM sms;
+
+// is this the serial asking for phone number input?
 
 char msg[50];
 int numdata;
@@ -48,9 +53,16 @@ void setup()
           //Read until serial buffer is empty.
           gsm.WhileSimpleRead();
 
+
+          // Set Variables
+          char latitude[] = dgps.Lat();
+          char longitude[] = dgps.Lon();
+          char velocity[] = dgps.Vel();
+          char azimuth[] = dgps.Azim();
+
           //TCP Client GET, send a GET request to the server and
           //save the reply.
-          numdata=inet.httpGET("localhost", 80, "/write_data.php", msg, 50);
+          numdata=inet.httpGET("stickytrack.com", 80, "/handle_data.php", msg, 50);
           //Print the results.
           Serial.println("\nNumber of data received:");
           Serial.println(numdata);

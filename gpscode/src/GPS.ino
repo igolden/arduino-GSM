@@ -1,32 +1,24 @@
 /*
- This program demonstrates the dGPS library from Dexter Industries for Arduino
- 
- For use with the Dexter Industries GPS Shield.  The dGPS can be found here:
-   - http://dexterindustries.com/Arduino-GPS_Shield.html
- 
- This code was originally based on the work of others.  You can see the original work here:
-   - SoftwareSerial Library:  http://www.arduino.cc/en/Reference/SoftwareSerial
-   - GPS Tutorial:  http://www.arduino.cc/playground/Tutorials/GPS
- 
- See our Arduino GPS Converting Coordinates for information on converting coordinates
- from GPS Style Coordinates (ddmm.ssss) to Decimal Style Coordinates (dd.mmssss).
- 
- How it works:
-   - The dGPS requires the SoftwareSerial.h library.
-   - The GPS is initialized in the setup function.
-   - The GPS is updated: values for location, time, etc, are updated using the ".update" function.
-   - The values are read using their respective calls.  These values stay the same until "update" is called again. 
 */
 
+// Run this script without the void and presetup with destination.
+
+// dependencies
 #include "string.h"
 #include "ctype.h"
 #include "SoftwareSerial.h"
 #include "dGPS.h"
+#include "client.h"
 
 // Software serial TX & RX Pins for the GPS module
 // Initiate the software serial connection
 
 int ledPin = 13;                  // LED test pin
+
+// This is why Paul saw the 0,0
+// We need to set the lat/long manually starting, or get rid of the destination lat/long completely.
+// * note this code just setups of the serial questions and input.
+
 float desLat=0;                   //Destination Latitude filled by user in Serial Monitor Box
 float desLon=0;                   //Destination Longitude filled by user in Serial Monitor Box
 char fla[2];                      //flag (Y/N) whether to print checksum or not. Filled by user in Serial Monitor Box
@@ -34,20 +26,8 @@ char fla2[2];                     //flag (Y/N) whether to print Altitude, number
 dGPS dgps = dGPS();               // Construct dGPS class
 
 
-/*float getdestcoord()
-  // function to get the coordinates of the destination from user
-  { float result;
-    while (Serial.available()==0)
-    {;}// do nothing until something comes into the serial buffer
+ // This function reads the input from above ^^
 
-    if (Serial.available()>0)
-    {
-     result=Serial.parseFloat(); //read a float value from serial monitor box, correct upto 2 decimal places
-     delay(10); // the processor needs a moment to process
-    }
-    return result;
-  }*/
-  
  void getflag(char *str)
    // function to read the flag character from the user 
   {  
@@ -64,18 +44,21 @@ dGPS dgps = dGPS();               // Construct dGPS class
     }  
   }
 
+// Start the setup
+
+
 void setup() {
   pinMode(ledPin, OUTPUT);       // Initialize LED pin
   Serial.end();                  // Close any previously established connections
   Serial.begin(9600);            // Serial output back to computer.  On.
   dgps.init();                   // Run initialization routine for dGPS.
+
+  // is this delay necessary?
   delay(1000);  
-  
-//  Serial.print("Do you want to display checksum (Y/N): "); 
-//  delay(3000);
-//  getflag(fla);
-//  Serial.println(*fla);
-//  
+
+  // I think the below question can be removed.
+
+  // Ask to clear buffer
   *fla2=Serial.read();           // To clear rhe buffer before the actual flag value is read
   memset(fla2, 0, sizeof(fla2));
   Serial.print("Do you want to display Altitude, Satellites used and HDOP (Y/N): "); 
@@ -83,24 +66,12 @@ void setup() {
   getflag(fla2);
   Serial.println(*fla2);
   
-//  Serial.print("Enter Destination Latitude (in degrees): ");
-//  delay(3000);
-//  desLat=getdestcoord();
-//  Serial.println(desLat);
-//  
-//  Serial.print("Enter Destination Longitude (in degrees): ");
-//  delay(3000);
-//  desLon=getdestcoord();
-//  Serial.println(desLon);  
 }
 
 void loop() {
   
+  // This is where the GPS action is.
   dgps.update(desLat, desLon);    // Calling this updates the GPS data.  The data in dGPS variables stays the same unless
-                                  // this function is called.  When this function is called, the data is updated.
-//  Serial.print("UTC Time: ");
-//  Serial.println(dgps.Time());    // .Time returns the UTC time (GMT) in HHMMSS, 24 huor format (H-Hour; M-Minute; S-Second)
-//  
   Serial.print("Status: ");
   Serial.println(dgps.Status());  // A - Satellites acquired and a valid signal.  V - No sats and not a valid signal.
   
@@ -112,27 +83,26 @@ void loop() {
   Serial.print(dgps.Lon(), 6);    // Longitude - in DD.MMSSSS format (decimal-degrees format)  (D-Degree; M-Minute; S-Second)
   Serial.println(" degrees");
   
+  // can get rid of the velocity, becuase we are updating every 5 seconds, unless we want to display the speed of the movement.
+  
   Serial.print("Velocity: ");
   Serial.print(dgps.Vel(), 6);    // Velocity, in knots.
   Serial.println(" knots");
   
-//  Serial.print("Heading: ");
-//  Serial.print(dgps.Head(), 6);   // Heading, in degrees
-//  Serial.println(" degrees");
-  
-//  Serial.print("UTC Date(DDMMYY): ");
-//  Serial.println(dgps.Date());    // UTC date.  Date is in format:  DDMMYY (D - Day; M - Month; Y-Year)
-//  
-//  Serial.print("Distance to destination: ");
-//  Serial.print(dgps.Dist());      // The distance to the destination in kilometers. Correct upto 2 decimal points. Radius of Earth taken as 6,378.1 kilometers
-//  Serial.println(" kilometers");
+  // can probably comment azimuth out.
   
   Serial.print("Azimuth to destination: "); 
   Serial.print(dgps.Azim());      //Azimuth of the destination coordinates from the current location in degrees. Correct upto 2 decimal points
   Serial.println(" degrees");
   
+
+  // This needs to be moved up above, the mode may be crucial, not sure.
+
   Serial.print("Mode Indicator: "); 
   Serial.println(dgps.Mode());     //Mode Indicator (N-Data not valid,A-Autonomous mode,D-Differential mode,E-Estimated mode,M-Manual input mode,S-Simulator mode
+
+// more user input... gotta make it all setup to run without user input.
+
     switch(*fla){                 //SWITCH CASE TO CHECK IF THE USER WANTS CHECKSUM OR NOT
      case 'Y':
      case 'y':
@@ -165,5 +135,6 @@ void loop() {
        break;
      default: Serial.print(""); }
        
-  Serial.println(""); 
+  // I added the value here to test it out.
+  Serial.println("We're Done, ya bastard."); 
 }
