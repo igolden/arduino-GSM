@@ -42,32 +42,28 @@ void setup()
      if(started) {
           //GPRS attach, put in order APN, username and password.
           //If no needed auth let them blank.
-          if (inet.attachGPRS("internet.wind", "", ""))
+          if (inet.attachGPRS("broadband", "", ""))
                Serial.println("status=ATTACHED");
           else Serial.println("status=ERROR");
-          delay(1000);
+          //delay(1000);
 
           //Read IP address.
-          gsm.SimpleWriteln("AT+CIFSR");
-          delay(5000);
+          //gsm.SimpleWriteln("AT+CIFSR");
+          //delay(5000);
           //Read until serial buffer is empty.
-          gsm.WhileSimpleRead();
+          //gsm.WhileSimpleRead();
 
 
-          // Set Variables
-          char latitude[] = dgps.Lat();
-          char longitude[] = dgps.Lon();
-          char velocity[] = dgps.Vel();
-          char azimuth[] = dgps.Azim();
-
+          Serial.println("starting connection...");
           //TCP Client GET, send a GET request to the server and
           //save the reply.
-          numdata=inet.httpGET("stickytrack.com", 80, "/handle_data.php", msg, 50);
+          numdata=inet.httpGET("http://33f1f4a7.ngrok.io/handle_data.php?lat=41.948600&lon=-88.769332", 80, "", msg, 50);
           //Print the results.
           Serial.println("\nNumber of data received:");
           Serial.println(numdata);
           Serial.println("\nData received:");
           Serial.println(msg);
+          Serial.println("Guess what, it worked!");
      }
 };
 
