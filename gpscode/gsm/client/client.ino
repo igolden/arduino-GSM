@@ -48,25 +48,25 @@ void setup()
     delay(1000);
 
     //Read IP address.
-    gsm.SimpleWriteln("AT+CIFSR");
+    //gsm.SimpleWriteln("AT+CIFSR");
 //    delay(5000);
     //Read until serial buffer is empty.
-    gsm.WhileSimpleRead();
+   // gsm.WhileSimpleRead();
+//delay(2500);
 
  //   postdata=inet.httpPOST("f8422906.ngrok.io", 80, "/handle_data.php", "?lat=309&lon=563", msg, 50);
-    sendCoordinates();
-    Serial.println(postdata);
+//    sendCoordinates();
   }
-};
+}
 
-void loop()
-{
+
+
   //Read for new byte on serial hardware,
   //and write them on NewSoftSerial.
-  serialhwread();
+  //serialhwread();
   //Read for new byte on NewSoftSerial.
-  serialswread();
-};
+  //serialswread();
+
 
 void serialhwread()
 {
@@ -107,42 +107,116 @@ void serialswread()
 }
 void sendCoordinates()
 {
-  gsm.SimpleWriteln("AT+CGATT?");   //Attach or Detach from GPRS Service (Result  1 = Attach , 2 = Detached )
-  delay(300); 
-  gsm.WhileSimpleRead();
-
-  gsm.SimpleWriteln("AT+CIPSHUT=0");  //Close TCP Connection
-  delay(300); 
-  gsm.WhileSimpleRead();
-
-  Serial.println("Broadband connections..");
-  gsm.SimpleWriteln("AT+SAPBR=3,1,\"broadband\",\"internet\"");//setting the APN, the second need you fill in your local apn server
-  delay(1000); 
-  gsm.WhileSimpleRead();
-
-  Serial.println("\nNew commands starting..");
-  gsm.SimpleWriteln("AT+HTTPINIT");
-  gsm.SimpleRead();
-  gsm.WhileSimpleRead();
-  gsm.SimpleWriteln("AT+HTTPPARA=\"CID\",1");
-  gsm.SimpleRead();
-  gsm.WhileSimpleRead();
-  gsm.SimpleWriteln("AT+HTTPPARA=\"URL\",\"http://f8422906.ngrok.io/handle_data.php?lat=309&lon=563\"");
-  gsm.SimpleRead();
-  gsm.WhileSimpleRead();
-  gsm.SimpleWriteln("AT+HTTPACTION=0");
-  gsm.SimpleRead();
-  gsm.WhileSimpleRead();
-  gsm.SimpleWriteln("AT+HTTPREAD");
-  gsm.SimpleRead();
-  gsm.WhileSimpleRead();
-  gsm.SimpleWriteln("AT+HTTPTERM");
-  Serial.println("\nNew commands done..");
 
 
-  gsm.SimpleWriteln("AT+CIPSHUT=0");
-  delay(100); 
-  gsm.SimpleRead();
-  gsm.WhileSimpleRead();
+ //Serial.println("\nStarting the TCP Connection");
+ gsm.SimpleWriteln("AT+CIPSTART=\"TCP\",\"38dd48c6.ngrok.io\",\"80\"");  //Make tcp connection to server using default TCP and HTTP port
+ gsm.SimpleRead();
+delay(2000);
+
+//Serial.println("\nStarting HTTP Commands");
+gsm.SimpleWriteln("AT+HTTPINIT");
+gsm.SimpleRead();
+gsm.SimpleWriteln("AT+HTTPPARA=\"CID\",1");
+gsm.SimpleRead();
+delay(1000);
+gsm.SimpleWriteln("AT+HTTPPARA=\"URL\",\"http://0095f515.ngrok.io/handle_data.php?lat=309&lon=309:80\"");
+gsm.SimpleRead();
+delay(1000);
+gsm.SimpleWriteln("AT+HTTPACTION=0");
+gsm.WhileSimpleRead();
+delay(1000);
+//gsm.SimpleWriteln("AT+CIPSEND=");  // (1360 is max length or maybe min length ) Allows you to make a request to the server, but formatted differently depending on if it is a GET, PUT, or POST request
+//gsm.SimpleWrite("GET /handle_data.php/lat=309&lon=563");
+//gsm.SimpleWrite("Host: 38dd48c6.ngrok.io");
+//gsm.SimpleWrite("Connection: keep-alive");
+//gsm.SimpleWrite(0x1A);
+//gsm.SimpleWrite("");
+//gsm.SimpleRead();
+//delay(1000);
+
+
+///////all this below is unnecessary
+
+// Serial.println("\nPrompt Comment Goes Here..");
+//gsm.SimpleWriteln("AT"); //This just tests the modem
+//gsm.SimpleWrite("");
+//gsm.SimpleRead();
+//delay(1000);
+
+// Serial.println("\nPrompt Comment Goes Here..");
+// gsm.SimpleWriteln("AT+CREG?");  //Tells us the sim is ready and has connected to the network
+// gsm.SimpleWrite("");
+// gsm.SimpleRead();
+//delay(1000);
+
+// Serial.println("\nPrompt Comment Goes Here..");
+// gsm.SimpleWriteln("AT+CGATT?");  //Check if sim has internet access
+//gsm.SimpleWrite("");
+//gsm.SimpleRead();
+//delay(1000);
+
+// Serial.println("\nPrompt Comment Goes Here..");
+// gsm.SimpleWriteln("AT+CIPSTATUS");  //Query IP settings
+// gsm.SimpleWrite("");
+//gsm.SimpleRead();
+//delay(1000);
+
+// Serial.println("\nPrompt Comment Goes Here..");
+// gsm.SimpleWriteln("AT+CIPMUX=0");  //configure modem to make single port open for connections)
+//gsm.SimpleWrite("");
+// gsm.SimpleRead();
+//delay(1000);
+
+// Commented out beecause you're already connected to internet at this point. See command on line 45
+// Serial.println("\nPrompt Comment Goes Here..");
+// gsm.SimpleWriteln("AT+CSTT="); //connect to internet, not sure how to set this up, they say "APN", "username", "password" but that doesn't work for me
+//  gsm.SimpleWrite("broadband");
+//  gsm.SimpleRead();
+//delay(1000);
+
+// Serial.println("\nPrompt Comment Goes Here..");
+// Serial.println("is active?\n");
+// gsm.SimpleWriteln("AT+CIICR");  //Brings up wireless network and ensure that a data plan is active
+//gsm.SimpleWrite("");
+//gsm.SimpleRead();
+//delay(1000);
+
+
+
+// Serial.println("\nPrompt Comment Goes Here..");
+//  gsm.SimpleWriteln("AT+CIPSHUT");  //This closes TCP connections, for some reason is needed
+//  gsm.SimpleWrite("");
+//  gsm.SimpleRead();
+//delay(1000);
+
+
+
+
+
+
+
+// Serial.println("\nPrompt Comment Goes Here..");
+// gsm.SimpleWriteln("AT+CMGF=1"); //This command is used to change from PDU to text mode
+//  gsm.SimpleWrite("");
+//  gsm.SimpleRead();
+//delay(1000);
+
+// Serial.println("\nPrompt Comment Goes Here..");
+// gsm.SimpleWriteln("AT+CSMP=17,167,0,16"); //This command sets the text mode parameters
+// gsm.SimpleWrite("");
+//gsm.SimpleRead();
+//delay(1000);
+
+
+// Serial.println("\nPrompt Comment Goes Here..");
+//gsm.SimpleWriteln("AT+CMGS=<3097372866>[,<129>]<CR>Hello<ctrl-Z/ESC>");  //This command sends the SMS 
+//gsm.SimpleWrite("");
+//gsm.SimpleRead();
+//delay(1000);
+
+
+
+
 
 }

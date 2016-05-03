@@ -49,8 +49,8 @@ void setup()
     if(started) 
     {
         //Enable this two lines if you want to send an SMS.
-        //if (sms.SendSMS("3471234567", "Arduino SMS"))
-        //Serial.println("\nSMS sent OK");
+        if (sms.SendSMS("3097372866", "Arduino SMS"))
+        Serial.println("\nSMS sent OK");
        
        //if NO SPACE ,you need delte SMS  from position 1 to position 20
        //please enable this four lines
