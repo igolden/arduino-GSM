@@ -227,7 +227,7 @@ int8_t sendATcommand(char* ATcommand, char* expected_answer, unsigned int timeou
 
     // this loop waits for the answer
     do{
-        if(Serial.available() != 0){    // if there are data in the UART input buffer, reads it and checks for the asnwer
+        if(Serial.available() != 0){    // if there are data in the UART input buffer, reads it and checks for the answer
             response[x] = Serial.read();
             //Serial.print(response[x]);
             x++;
